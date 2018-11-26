@@ -54,7 +54,8 @@ class DataProviderLayer(nn.Module):
             next_data=self.data_iter.next()
 
         next_data=map(np.array,next_data)
-        my_complete_data=functools.partial(complete_data,batchsize=self.batchsize)#functools.partial通过包装手法，允许我们“重新定义”函数签名，
+        my_complete_data=functools.partial(complete_data,batchsize=self.batchsize)#functools.partial通过包装手法，允许我们“重新定义”函数签名,，可以像原始对象一样对待
+        #map(function,iterable,...)
         gt_boxes,qvec,cvec,img_feat,bbox,img_shape,spt_feat,query_label,query_label_mask,\
                         query_bbox_targets,query_bbox_inside_weights,query_bbox_outside_weights,valid_data,iid_list=map(my_complete_data,next_data)
 
