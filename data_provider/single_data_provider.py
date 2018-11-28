@@ -1,6 +1,6 @@
 import torch.nn as nn
 from data_provider.data_provider import DataProvider
-from data_provider.data_factory import get_data_provider
+# from data_provider.data_factory import get_data_provider
 import numpy as np
 import random
 class SingleDataProvider(DataProvider):

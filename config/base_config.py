@@ -15,8 +15,10 @@ __C.QUERY_MAXLEN = 15
 __C.USE_KLD = True
 
 __C.RPN_TOPN = 100
-__C.NTHREADS = 16
-__C.IMDB_NAME = 'refcoco'# flickr30k, referit, refcoco, refcoco+
+
+# __C.NTHREADS = 16
+__C.NTHREADS = 8  # due to the my machine environment,8 is the max
+__C.IMDB_NAME = 'refcoco'  # flickr30k, referit, refcoco, refcoco+
 __C.PROJ_NAME = 'genome'
 # if __C.USE_KLD:
 #     __C.PROJ_NAME+='_kld'
@@ -24,7 +26,8 @@ __C.PROJ_NAME = 'genome'
 #     __C.PROJ_NAME+='_soft'
 
 __C.FEAT_TYPE = 'bottom-up'# ss, wfrpn, wofrpn, vgrpn, bu
-__C.ROOT_DIR = osp.abspath(osp.join(osp.dirname(__file__), '..'))#osp.dirname返回文件路径；osp.abspath返回绝对路径;__file__是获取当前脚本的路径
+# __C.ROOT_DIR = osp.abspath(osp.join(osp.dirname(__file__), '..'))#osp.dirname返回文件路径；osp.abspath返回绝对路径;__file__是获取当前脚本的路径
+__C.ROOT_DIR = osp.join('/home/lipin/code/DDPN-master')
 __C.DATA_DIR = osp.join(__C.ROOT_DIR, 'data')
 __C.SS_BOX_DIR = osp.join(__C.DATA_DIR, 'ss_box')
 __C.SS_FEAT_DIR = osp.join(__C.SS_BOX_DIR, 'ss_feat_vgg_det')
@@ -34,9 +37,11 @@ __C.UNK = 1#这个参数具体代表什么？？？？？
 
 __C.SPLIT_TOK = '+'
 
-__C.IMAGE_DIR = osp.join(__C.DATA_DIR, 'mscoco/features/fst-res101-feats/train2014')#这里到时候应该根据自己存放的具体路径进行修改！！！！
+__C.IMAGE_DIR = osp.join(__C.DATA_DIR, 'mscoco/features/fst-res101-feats/train2014')  # 这里到时候应该根据自己存放的具体路径进行修改！！！！
 __C.FEAT_DIR = osp.join(__C.DATA_DIR, 'mscoco/image2014/train2014')
-__C.QUERY_DIR = osp.join(__C.DATA_DIR, 'query_dict')
+# __C.QUERY_DIR = osp.join(__C.DATA_DIR, '/query_dict')
+__C.QUERY_DIR = osp.join(__C.DATA_DIR, 'format_dataset/refcoco/query_dict')  # just link to another project's data path
+
 __C.ANNO_PATH = osp.join(__C.DATA_DIR, 'format_%s.pkl')
 
 __C.THRESHOLD = 0.5

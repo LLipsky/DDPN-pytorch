@@ -1,4 +1,4 @@
-import config.base_config as cfg
+from config.base_config import cfg
 # from preprocess.refcoco import Refcoco
 
 from preprocess.refcoco import CocoDataset

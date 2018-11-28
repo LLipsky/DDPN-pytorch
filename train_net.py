@@ -2,7 +2,7 @@ import argparse
 import sys
 from config.base_config import cfg_from_file,print_cfg
 import os.path as osp
-import config.base_config as cfg
+from config.base_config import cfg
 
 def get_solver(opts):
     # s = caffe_pb2.SolverParameter()

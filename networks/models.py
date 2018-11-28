@@ -1,5 +1,5 @@
 import json
-import config.base_config as cfg
+from config.base_config import cfg
 from networks.data_layer import DataProviderLayer
 import torch
 import torch.nn as nn

@@ -1,5 +1,5 @@
 import torch.nn as nn
-import config.base_config as cfg
+from config.base_config import cfg
 from  utils.data_utils import load
 from utils.dictionary import Dictionary
 import os
