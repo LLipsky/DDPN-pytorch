@@ -8,7 +8,7 @@ import numpy as np
 from utils.bbox_transform import bbox_overlaps_batch
 from utils.bbox_transform import bbox_transform
 class DataProvider(nn.Module):
-    def __init__(self,data_split,batchsize=1):
+    def __init__(self, data_split, batchsize=1):
         print("init DataProvider for %s : %s : %s",cfg.IMDB_NAME,cfg.PROJ_NAME,cfg.data_split)
         self.is_ss=cfg.FEAT_TYPE=='ss'#根据提取特征类型的不一样，来做不同的处理
         self.ss_box_dir=cfg.SS_BOX_DIR
