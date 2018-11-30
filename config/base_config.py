@@ -33,7 +33,7 @@ __C.SS_BOX_DIR = osp.join(__C.DATA_DIR, 'ss_box')
 __C.SS_FEAT_DIR = osp.join(__C.SS_BOX_DIR, 'ss_feat_vgg_det')
 __C.SS_FEAT_DIM = 4096
 
-__C.UNK = 1#这个参数具体代表什么？？？？？
+__C.UNK = 1  # means unknown word
 
 __C.SPLIT_TOK = '+'
 
@@ -42,7 +42,9 @@ __C.FEAT_DIR = osp.join(__C.DATA_DIR, 'mscoco/image2014/train2014')
 # __C.QUERY_DIR = osp.join(__C.DATA_DIR, '/query_dict')
 __C.QUERY_DIR = osp.join(__C.DATA_DIR, 'format_dataset/refcoco/query_dict')  # just link to another project's data path
 
-__C.ANNO_PATH = osp.join(__C.DATA_DIR, 'format_%s.pkl')
+# __C.ANNO_PATH = osp.join(__C.DATA_DIR, 'format_%s.pkl')
+__C.ANNO_PATH = osp.join(__C.DATA_DIR, 'format_dataset/refcoco/format_%s.pkl')
+
 
 __C.THRESHOLD = 0.5
 

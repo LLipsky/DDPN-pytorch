@@ -1,8 +1,8 @@
 import _pickle as cPickle
 import numpy as np
-def save(data, save_path):#将对象转化为文件保存在磁盘上，在需要的时候再读取并还原（load）。data是要持久化保存的对象
+def save(data, save_path):  # store object in the disk,and save and load when need,data should be saved permanently
     with open(save_path, 'wb') as f:
-        return cPickle.dump(data, f)#dumps和dump的区别是，dump多了一个类似文件指针的参数
+        return cPickle.dump(data, f)  # dumps VS dump，dump has a param (file pointer
 def load(file_path):
     with open(file_path, 'rb') as f:
         return cPickle.load(f)

@@ -109,7 +109,7 @@ class Net(nn.Module):
 
 
 
-        return loss_query_score,loss_query_bbox
+        return loss_query_score, loss_query_bbox
 
     def proc_image(self, img_feat_layer, spt_feat_layer):
 

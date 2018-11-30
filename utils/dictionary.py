@@ -29,8 +29,8 @@ class Dictionary(object):
         self.word_freq = load(self.save_dir+'/word_freq.pkl')
         self.special = load(self.save_dir+'/special_words.pkl')
 
-    def lookup(self, token, default=cfg.UNK):#UNK=1
-        return self.token2indx.get(token, default)#这里的get(key,default)函数返回指定键的值，如果值不在字典中则返回默认值
+    def lookup(self, token, default=cfg.UNK):  # UNK=1
+        return self.token2indx.get(token, default)  # 这里的get(key,default)函数返回指定键的值，如果值不在字典中则返回默认值
 
     def size(self):
         return len(self.token2indx)

@@ -6,7 +6,7 @@ import numpy as np
 import functools
 from utils.data_utils import complete_data
 class DataProviderLayer(nn.Module):
-    def __init__(self, bottom, top, param_str_):  # 这里的top means output,bottom means input
+    def __init__(self, bottom, top, param_str_):  # top means output,bottom means input
 
         super(DataProviderLayer, self).__init__()
         self.bottomup_feat_dim = cfg.BOTTOMUP_FEAT_DIM
@@ -18,6 +18,7 @@ class DataProviderLayer(nn.Module):
 
         self.top_names = ['qvec', 'cvec', 'img_feat', 'spt_feat', 'query_label', 'query_label_mask',\
                         'query_bbox_targets', 'query_bbox_inside_weights', 'query_bbox_outside_weights']
+
 
         '''
         top[0].reshape(self.query_maxlen, self.batchsize)  # reshape相当于重新指定维度
@@ -39,18 +40,23 @@ class DataProviderLayer(nn.Module):
         print(tmp.shape)
         top.append(tmp)  # top[0]
         print(np.array(top[0]).shape)
+
         tmp = np.zeros((self.query_maxlen, self.batchsize))
         top.append(tmp)  # top[1]
+
         tmp = np.zeros((self.batchsize, cfg.RPN_TOPN, self.bottomup_feat_dim))
         top.append(tmp)  # top[2]
+
         tmp = np.zeros((self.batchsize, cfg.RPN_TOPN, 5))
         top.append(tmp)  # top[3]
+
         if self.use_kld:
             tmp = np.zeros((self.batchsize, cfg.RPN_TOPN, 5))
             top.append(tmp)  # top[4]
         else:
             tmp = np.zeros((self.batchsize))
             top.append(tmp)  # top[4]
+
         tmp = np.zeros((self.batchsize))
         top.append(tmp)  # top[5]
 
@@ -64,12 +70,12 @@ class DataProviderLayer(nn.Module):
         top.append(tmp)  # top[8]
 
         if str(self.phase) == 'TRAIN':
-            dp = get_data_provider(data_split=self.split, batchsize=self.batchsize)  # call the MultiDataProvider
+            dp = get_data_provider(data_split=self.split, batchsize=self.batchsize)  # call the MultiDataProvider(data_split, batchsize)
             if cfg.NTHREADS > 1:
                 import torch
                 self.dataloader = torch.utils.data.DataLoader(dp, batch_size=self.batchsize, shuffle=True, num_workers=int(cfg.NTHREADS))
             else:
-                self.dataloader = dp  # 这里直接用单线程
+                self.dataloader = dp
 
             self.data_iter = iter(self.dataloader)
 

@@ -50,7 +50,7 @@ if __name__ == '__main__':
     qdic = qdicLoader()
 
     vocab_size = qdic.size()
-    print(vocab_size)#vocab_size supposed to be 9368;
+    print(vocab_size)  # vocab_size supposed to be 9368;
 
     opts = parse_args()  # cannot return a opts,because len==1 and exit(1)
 
