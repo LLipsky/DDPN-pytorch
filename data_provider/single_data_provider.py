@@ -51,30 +51,30 @@ class SingleDataProvider(DataProvider):
 
                 #query label,mask
                 t_gt_bbox=np.array(self.anno[qid]['boxes'])
-                t_query_label, t_query_label_mask, t_query_bbox_targets,t_query_bbox_inside_weights, t_query_bbox_outside_weights=\
+                t_query_label, t_query_label_mask, t_query_bbox_targets, t_query_bbox_inside_weights, t_query_bbox_outside_weights=\
                     self.get_labels(self, t_bbox, t_gt_bbox)
 
                 if self.use_kld:
-                    query_label[i,:t_num_bbox]=t_query_label
-                    query_label_mask[i]=t_query_label_mask
+                    query_label[i, :t_num_bbox] = t_query_label
+                    query_label_mask[i] = t_query_label_mask
                 else:
-                    query_label[i,...]=t_query_label
+                    query_label[i, ...] = t_query_label
 
-                query_bbox_targets[:,:t_num_bbox,:]=t_query_bbox_inside_weights
-                t_query_bbox_outside_weights[:,:t_num_bbox,:]=t_query_bbox_outside_weights
+                query_bbox_targets[:, :t_num_bbox, :] = t_query_bbox_inside_weights
+                t_query_bbox_outside_weights[:, :t_num_bbox, :] = t_query_bbox_outside_weights
 
             except Exception as e:
                 print(e)
                 valid_data[i] = 0
                 if not self.use_kld:
-                    query_label[i]=-1
-                query_label_mask[i]=0
-                query_bbox_inside_weights[i,...]=0
-                query_bbox_outside_weights[i,...]=0
-                print('data not found for iid: %s'%str(self.anno[qid]['iid']))
+                    query_label[i] = -1
+                query_label_mask[i] = 0
+                query_bbox_inside_weights[i, ...] = 0
+                query_bbox_outside_weights[i, ...] = 0
+                print('data not found for iid: %s' % str(self.anno[qid]['iid']))
 
-        return gt_bbox,qvec,cvec,img_feat,bbox,img_feat,spt_feat,query_label,query_label_mask,\
-                    query_bbox_targets,query_bbox_inside_weights,query_bbox_outside_weights,valid_data
+        return gt_bbox, qvec, cvec, img_feat, bbox, img_feat, spt_feat, query_label, query_label_mask,\
+                    query_bbox_targets, query_bbox_inside_weights, query_bbox_outside_weights, valid_data
 
     def __getitem__(self, index):
         if self.batch_len is None:

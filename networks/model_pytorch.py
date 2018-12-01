@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from config.base_config import cfg
 import numpy as np
-import json
+
 from networks.data_layer import DataProviderLayer
 
 import torch.nn.functional as F
@@ -26,22 +26,7 @@ class Net(nn.Module):
         # print("try the test again adfahsdjkfhaskfjashfaskjfasjkfaslkf")
 
 
-    def forward(self):
-
-        # top = np.zeros((9,))
-        top = []
-        param_str = json.dumps({'split': self.split, 'batchsize': cfg.BATCHSIZE})
-        dataProviderLayer = DataProviderLayer(top, param_str)
-
-        #
-        # self.qvec, self.cvec, self.img_feat, self.spt_feat, self.query_label, \
-        # self.query_label_mask, self.query_bbox_targets, self.query_bbox_inside_weights, \
-        # self.query_bbox_outside_weights = dataProviderLayer()
-
-        qvec, cvec, img_feat, spt_feat, query_label, \
-        query_label_mask, query_bbox_targets, query_bbox_inside_weights, \
-        query_bbox_outside_weights = dataProviderLayer()  # cvec in the pytorch version may no need,just ignore it
-
+    def forward(self,qvec,img_feat,spt_feat):
 
         # Word Embed
         embed_ba = self.embedding(qvec)  # qvec :one hot vector input;output_num(embed_ba):300
@@ -87,9 +72,6 @@ class Net(nn.Module):
             criterion = nn.KLDivLoss()
             loss_query_score = criterion(query_score_pred, query_label)  # query_label_mask function????
 
-
-
-
         else:
             #softmax and normal loss
             query_score_pred = F.log_softmax(query_score_pred)
@@ -97,13 +79,12 @@ class Net(nn.Module):
             loss_query_score = criterion(query_score_pred,query_label)
 
 
-
         # predict bbox
         query_bbox_pred1 = nn.Linear(out_features=4)
         query_bbox_pred = query_bbox_pred1(qv_relu)
 
         if cfg.USE_REG:
-            loss_query_bbox = F.smooth_l1_loss(query_bbox_pred,query_bbox_targets)  # inside_weights and outside_weights function?????
+            loss_query_bbox = F.smooth_l1_loss(query_bbox_pred, query_bbox_targets)  # inside_weights and outside_weights function?????
         else:
             print("not use regression bbox loss")
 
@@ -146,8 +127,24 @@ class Net(nn.Module):
 
         return qv_relu
 
-
-
+    # def get_top(self):
+    #     # top = np.zeros((9,))
+    #     top = []
+    #     param_str = json.dumps({'split': self.split, 'batchsize': cfg.BATCHSIZE})
+    #     dataProviderLayer = DataProviderLayer(top, param_str)
+    #
+    #     #
+    #     # self.qvec, self.cvec, self.img_feat, self.spt_feat, self.query_label, \
+    #     # self.query_label_mask, self.query_bbox_targets, self.query_bbox_inside_weights, \
+    #     # self.query_bbox_outside_weights = dataProviderLayer()
+    #
+    #     qvec, cvec, img_feat, spt_feat, query_label, \
+    #     query_label_mask, query_bbox_targets, query_bbox_inside_weights, \
+    #     query_bbox_outside_weights = dataProviderLayer()  # cvec in the pytorch version may no need,just ignore it
+    #
+    #     return qvec, cvec, img_feat, spt_feat, query_label, \
+    #     query_label_mask, query_bbox_targets, query_bbox_inside_weights, \
+    #     query_bbox_outside_weights
 
 
 

@@ -26,21 +26,23 @@
 # print(x.repeat(2).size())
 #
 import _pickle as cPickle
+import os.path as osp  # os.path 模块主要用于获取文件的属性。
 import sys
 # reload(sys)
-sys.setdefaultencoding('utf-8')
+# sys.setdefaultencoding('utf-8')
 import codecs
 def load(file_path):
     with open(file_path, 'rb') as f:
+    # with codecs.open(file_path, 'rb', encoding='utf-8') as f:
         print(f)
+        return cPickle.load(f, encoding='latin1')  # unicode error solved by latin1
 
-        
 
-import os.path as osp  # os.path 模块主要用于获取文件的属性。
 ROOT_DIR = osp.join('/home/lipin/code/DDPN-master')
 DATA_DIR = osp.join(ROOT_DIR, 'data')
 ANNO_PATH = osp.join(DATA_DIR, 'format_dataset/refcoco/format_train.pkl')
 print(ANNO_PATH)
 # file_path = '/code/DDPN-master/data/format_dataset/refcoco'
 train_img_data = load(ANNO_PATH)
+
 print(train_img_data)

@@ -13,24 +13,24 @@ class MultiDataProvider(data.Dataset, DataProvider):
     def __getitem__(self, index):
         if self.batch_len is None:
             self.n_skipped = 0
-            qid_list = self.get_query_ids()  # return self.anno.keys()
+            qid_list = self.get_query_ids()  # return self.anno.keys(),qid_list store keys
             if self.mode == 'train':
                 random.shuffle(qid_list)
             self.qid_list = qid_list
-            self.batch_len = len(qid_list)
+            self.batch_len = len(qid_list)  # return the len of the keys
             self.epoch_counter = 0
             print('mode %s has %d data', self.mode, self.batch_len)
 
-        qid = self.qid_list[index]  # a image's id
+        qid = self.qid_list[index]  # qid is a image id key,qid means a key of a image's index,qid means maybe train ,val or test??????
         gt_bbox = np.zeros(4)
         qvec = np.zeros(self.query_maxlen)  # 15 words
         cvec = np.zeros(self.query_maxlen)
         img_feat = np.zeros((self.rpn_topn, self.bottomup_feat_dim))  # a image have 100 proposals,bottomup_feat(feature map)
-        bbox = np.zeros((self.rpn_topn, 4))  # a image have 100 proposals,bbox has two coordinates
+        bbox = np.zeros((self.rpn_topn, 4))  # a image have 100 proposals,bbox has two coordinates,
         img_shape = np.zeros(2)  # w & h
         spt_feat = np.zeros((self.rpn_topn, 5))  # a image have 100 proposals,spt_feat dim:5
         if self.use_kld:
-            query_label = np.zeros(self.rpn_topn)  # if use_kld,query_label is needed, query_label dim 100
+            query_label = np.zeros(self.rpn_topn)  # if use_kld,query_label is needed, query_label dim 100,every proposal related to a query_label
 
         query_label_mask = 0
         query_bbox_targets = np.zeros((self.rpn_topn, 4))  # means ground truth bbox
@@ -39,24 +39,24 @@ class MultiDataProvider(data.Dataset, DataProvider):
 
         valid_data = 1
 
-        t_qstr = self.anno[qid]['qstr']
-        t_qvec, t_cvec = self.str2list(t_qstr, self.query_maxlen)  # return index after lookup(wi)
+        t_qstr = self.anno[qid]['qstr']  # qid is a key,t_qstr means the key's ('qstr') value,such as ''white bowl back middle'
+        t_qvec, t_cvec = self.str2list(t_qstr, self.query_maxlen)  # qvec is the index which is returned after lookup(word)
         qvec[...] = t_qvec
         cvec[...] = t_cvec
 
         try:
-            t_gt_bbox = self.anno[qid]['boxes']
+            t_gt_bbox = self.anno[qid]['boxes']  # means the qid query,boxes is the key,and t_gt_bbox is the value
             gt_bbox[...] = t_gt_bbox[0]
-            t_img_feat, t_num_bbox, t_bbox, t_img_shape = self.get_topdown_feat(self.anno[qid]['iid'])
+            t_img_feat, t_num_bbox, t_bbox, t_img_shape = self.get_topdown_feat(self.anno[qid]['iid'])  # a image's param
             t_img_feat = t_img_feat.transpose((1, 0))
             t_img_feat = (t_img_feat/np.sqrt((t_img_feat**2).sum()))
 
             img_feat[:t_num_bbox, :] = t_img_feat
-            bbox[:t_num_bbox,:] = t_bbox
+            bbox[:t_num_bbox, :] = t_bbox
 
             # spt feat
             img_shape[...] = np.array(t_img_shape)
-            t_spt_feat = self.get_spt_feat(t_bbox, t_img_shape)
+            t_spt_feat = self.get_spt_feat(t_bbox, t_img_shape)  # bbox ,img_shape means the shape of the image
             spt_feat[:t_num_bbox, :] = t_spt_feat
 
             # query label,mask
@@ -65,7 +65,7 @@ class MultiDataProvider(data.Dataset, DataProvider):
                     self.get_labels(t_bbox, t_gt_bbox)
             if self.use_kld:
                 query_label[:t_num_bbox] = t_query_label
-                query_label_mask = t_query_label_mask
+                query_label_mask = t_query_label_mask  # mask needed when the kld-loss is used
             else:
                 query_label = t_query_label
 

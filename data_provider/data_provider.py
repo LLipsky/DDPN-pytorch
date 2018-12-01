@@ -92,7 +92,7 @@ class DataProvider(nn.Module):
         boxes[:, [2, 3]] = boxes[:, [3, 2]]
         return boxes
 
-    def get_topdown_feat(self, iid):  # return img_feat and spt_feat
+    def get_topdown_feat(self, iid):  # return img_feat and spt_feat,iid is the name of the image
         try:
             if self.is_ss:  # different feat_type，different operation
                 img_path = self.get_img_path(iid)  # due to iid get img path
@@ -105,30 +105,30 @@ class DataProvider(nn.Module):
                 num_bbox = bbox.shape[0]
                 img_feat = np.transpose(np.load(feat_path)['x'], (1, 0))
             else:
-                if self.is_mscoco_prefix:
-                    feat_path = os.path.join(self.feat_dir, 'COCO_train2014_'+str(iid).zfill(12)+self.image_ext+'.npz')
+                if self.is_mscoco_prefix:  # self.image_ext = '.jpg', the value of str(iid).zfill(12) or str(iid) is image's id(such as 000000581560)
+                    feat_path = os.path.join(self.feat_dir, 'COCO_train2014_'+str(iid).zfill(12)+self.image_ext+'.npz')  # just the path of every image's feature map
                 else:
                     feat_path = os.path.join(self.feat_dir, str(iid)+self.image_ext+'.npz')
 
-                feat_dict = np.load(feat_path)  #想打印出来看看feat_dict是怎么样的？？？？？？
+                feat_dict = np.load(feat_path)  # 想打印出来看看feat_dict是怎么样的？？？？？？
                 img_feat = feat_dict['x']
-                num_bbox = feat_dict['num_bbox']
+                num_bbox = feat_dict['num_bbox']  # what is the meaning?????
                 bbox = feat_dict['bbox']
                 img_h = feat_dict['img_h']
                 img_w = feat_dict['img_w']
 
-            return img_feat, num_bbox, bbox, (img_h,img_w)
+            return img_feat, num_bbox, bbox, (img_h, img_w)
         except Exception as e:#except Exception,e:这个python3.6不支持，解决办法是将‘，’改成‘as’
             print(e)
             raise Exception("UnknownError")
 
 
-    def get_spt_feat(self,bbox,img_shape):
-        #在paper中就这么设置img_shape. a 5-D spatial feature vspat = [xtl/W,ytl/H,xbr/W,ybr/H,wh/WH] tl代表左上角度，top left;br代表右下bottom right
+    def get_spt_feat(self,bbox,img_shape):  # due to the bbox's two coordinates,compute the center
+        # spt_shape. a 5-D spatial feature vspat = [xtl/W,ytl/H,xbr/W,ybr/H,wh/WH] tl:top left;br:bottom right
         spt_feat = np.zeros((bbox.shape[0], 5), dtype=np.float)
 
-        spt_feat[:, 0] = bbox[:, 0]/float(img_shape[1])  # img_shape[1]是宽W
-        spt_feat[:, 1] = bbox[:, 1]/float(img_shape[0])  # img_shape[0]是高H
+        spt_feat[:, 0] = bbox[:, 0]/float(img_shape[1])  # img_shape[1] W
+        spt_feat[:, 1] = bbox[:, 1]/float(img_shape[0])  # img_shape[0] H
         spt_feat[:, 2] = bbox[:, 2]/float(img_shape[1])
         spt_feat[:, 3] = bbox[:, 3]/float(img_shape[0])
         spt_feat[:, 4] = (bbox[:, 2]-bbox[:, 0])*(bbox[:, 3]-bbox[:, 1])/float(img_shape[0]*img_shape[1])
@@ -173,7 +173,7 @@ class DataProvider(nn.Module):
 
         return query_bbox_target_data
 
-    def get_query_bbox_regression_labels(self, query_bbox_target_data):
+    def get_query_bbox_regression_labels(self, query_bbox_target_data):  # query_bbox_target_data include query_label and query_bbox targets
         query_label = query_bbox_target_data[:, 0]
         query_bbox_targets = np.zeros((query_label.size, 4), dtype=np.float32)
         query_bbox_inside_weights = np.zeros(query_bbox_targets.shape, dtype=np.float32)
@@ -181,7 +181,7 @@ class DataProvider(nn.Module):
         if len(inds) != 0:
             for ind in inds:
                 query_bbox_targets[ind, :] = query_bbox_target_data[ind, 1:]
-                if query_label[ind] == 1:#根据不同的label值来设置权重
+                if query_label[ind] == 1:  # 根据不同的label值来设置权重
                     query_bbox_inside_weights[ind, :] = cfg.BBOX_INSIDE_WEIGHTS
                 elif query_label[ind] == 2:
                     query_bbox_inside_weights[ind, :] = 0.2
@@ -189,9 +189,9 @@ class DataProvider(nn.Module):
         return query_bbox_targets, query_bbox_inside_weights
 
 
-    #获取bbox regression对应的mask，根据scores获取对应的label
-    def get_labels(self, rpn_rois, gt_boxes):#这里的rpn_rois是t_bbox,gt_boxes是t_gt_boxes
-
+    # 获取bbox regression对应的mask，根据scores获取对应的label
+    def get_labels(self, rpn_rois, gt_boxes):  # rpn_rois means t_bbox(gotten from DDPN(faster-rcnn) rpn),gt_boxes means t_gt_boxes
+        # to get labels(query_label) of the rpn_rois,according to overlaps
         overlaps = bbox_overlaps_batch(np.ascontiguousarray(rpn_rois, dtype=float), np.ascontiguousarray(gt_boxes[:, :4], dtype=float))
 
         if self.use_kld:
@@ -200,12 +200,12 @@ class DataProvider(nn.Module):
         query_label_mask = 0
         bbox_label = np.zeros(rpn_rois.shape[0])
 
-        #找出query=1的gt_boxes的index
+        # 找出query=1的gt_boxes的index
         query_gt_ind = 0
         query_overlaps = overlaps[:, query_gt_ind].reshape(-1)
 
         if self.use_kld:
-            #kld：根据iou设置权重
+            # kld：根据iou设置权重
             if query_overlaps.max() >= 0.5:
                 query_label_mask = 1  # positive example
                 query_inds = np.where(query_overlaps >= cfg.THRESHOLD)[0]
@@ -229,10 +229,10 @@ class DataProvider(nn.Module):
         if query_overlaps.max() >= 0.5:
             query_inds = np.where(query_overlaps >= cfg.THRESHOLD)[0]  # cfg.THRESHOLD=0.5
             bbox_label[query_inds] = 1  # 将query_overlaps大于0.5的指定index的bbox的label改成1
-            gt_target_boxes[query_inds]=gt_boxes[query_gt_ind, :4]
+            gt_target_boxes[query_inds] = gt_boxes[query_gt_ind, :4]
 
         bbox_target_data = self.compute_targets(rois, gt_target_boxes, bbox_label)
-        query_bbox_targets, query_bbox_inside_weights = self.get_query_bbox_regression_labels(bbox_target_data)  # 根据不同的label来设置权重
+        query_bbox_targets, query_bbox_inside_weights = self.get_query_bbox_regression_labels(bbox_target_data)  # set weights due to the different query label value
         query_bbox_outside_weights = np.array(query_bbox_inside_weights > 0).astype(np.float32)  # 将大于0的inside_weights挑选出来
 
         return query_label, query_label_mask, query_bbox_targets, query_bbox_inside_weights, query_bbox_outside_weights

@@ -5,7 +5,7 @@ from data_provider.data_factory import get_data_provider
 import numpy as np
 import functools
 from utils.data_utils import complete_data
-class DataProviderLayer(nn.Module):
+class DataProviderLayer(nn.Module):  # succeed the torch.nn.Modules
     def __init__(self, bottom, top, param_str_):  # top means output,bottom means input
 
         super(DataProviderLayer, self).__init__()
@@ -36,37 +36,37 @@ class DataProviderLayer(nn.Module):
         top[7].reshape(self.batchsize*cfg.RPN_TOPN, 4)
         top[8].reshape(self.batchsize*cfg.RPN_TOPN, 4)'''
 
-        tmp = np.zeros((self.query_maxlen, self.batchsize))
+        tmp = np.zeros((self.query_maxlen, self.batchsize))  # qvec
         print(tmp.shape)
         top.append(tmp)  # top[0]
         print(np.array(top[0]).shape)
 
-        tmp = np.zeros((self.query_maxlen, self.batchsize))
+        tmp = np.zeros((self.query_maxlen, self.batchsize))  # cvec
         top.append(tmp)  # top[1]
 
-        tmp = np.zeros((self.batchsize, cfg.RPN_TOPN, self.bottomup_feat_dim))
+        tmp = np.zeros((self.batchsize, cfg.RPN_TOPN, self.bottomup_feat_dim))  # img_feat
         top.append(tmp)  # top[2]
 
-        tmp = np.zeros((self.batchsize, cfg.RPN_TOPN, 5))
+        tmp = np.zeros((self.batchsize, cfg.RPN_TOPN, 5))  # spt_feat
         top.append(tmp)  # top[3]
 
         if self.use_kld:
-            tmp = np.zeros((self.batchsize, cfg.RPN_TOPN, 5))
+            tmp = np.zeros((self.batchsize, cfg.RPN_TOPN, 5))  # query_label
             top.append(tmp)  # top[4]
         else:
             tmp = np.zeros((self.batchsize))
             top.append(tmp)  # top[4]
 
-        tmp = np.zeros((self.batchsize))
+        tmp = np.zeros((self.batchsize))  #query_label_mask  (positive or negative)
         top.append(tmp)  # top[5]
 
-        tmp = np.zeros((self.batchsize*cfg.RPN_TOPN, 4))
+        tmp = np.zeros((self.batchsize*cfg.RPN_TOPN, 4))  # query_bbox_targets
         top.append(tmp)  # top[6]
 
-        tmp = np.zeros((self.batchsize*cfg.RPN_TOPN, 4))
+        tmp = np.zeros((self.batchsize*cfg.RPN_TOPN, 4))  # query_bbox_inside_weigths
         top.append(tmp)  # top[7]
 
-        tmp = np.zeros((self.batchsize * cfg.RPN_TOPN, 4))
+        tmp = np.zeros((self.batchsize * cfg.RPN_TOPN, 4))  # query_bbox_outside_weights
         top.append(tmp)  # top[8]
 
         if str(self.phase) == 'TRAIN':
@@ -82,7 +82,7 @@ class DataProviderLayer(nn.Module):
     def reshape(self, bottom, top):
         pass
 
-    def forward(self, bottom, top):
+    def forward(self, bottom, top):  # input->operation->forward,return output
         if str(self.phase) != 'TRAIN':
             return
         try:
@@ -95,10 +95,10 @@ class DataProviderLayer(nn.Module):
         my_complete_data = functools.partial(complete_data, batchsize=self.batchsize)  # functools.partial通过包装手法，允许我们“重新定义”函数签名,，可以像原始对象一样对待
         #map(function,iterable,...)
         gt_boxes, qvec, cvec, img_feat, bbox, img_shape, spt_feat, query_label, query_label_mask, \
-                        query_bbox_targets, query_bbox_inside_weights, query_bbox_outside_weights, valid_data,iid_list = map(my_complete_data,next_data)
+                        query_bbox_targets, query_bbox_inside_weights, query_bbox_outside_weights, valid_data, iid_list = map(my_complete_data,next_data)
 
         #queries
-        qvec = np.transpose(qvec,(1,0))
+        qvec = np.transpose(qvec, (1, 0))
         top[0].reshape(*qvec.shape)
         top[0].data[...] = qvec
 

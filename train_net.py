@@ -5,6 +5,10 @@ from utils.dictionary import Dictionary
 #the main function may in the train_net.py
 #main function may in the train_net.py,for simple just put in the same file
 from networks.model_pytorch import Net
+from networks.data_layer import DataProviderLayer
+import json
+
+
 def qdicLoader():
     qdic_dir = cfg.QUERY_DIR
     qdic = Dictionary(qdic_dir)
@@ -56,4 +60,15 @@ if __name__ == '__main__':
 
     print(opts.train_split)
 
-    train_net = Net(opts.train_split, vocab_size)  # train_split value == train
+    top = []
+    param_str = json.dumps({'split': opts.train_split, 'batchsize': cfg.BATCHSIZE})
+    dataProviderLayer = DataProviderLayer(top, param_str)
+
+    qvec, cvec, img_feat, spt_feat, query_label, \
+    query_label_mask, query_bbox_targets, query_bbox_inside_weights, \
+    query_bbox_outside_weights = dataProviderLayer()  # cvec in the pytorch version may no need,just ignore it
+
+    net = Net()
+    print(net)
+
+    train_net = net(opts.train_split, vocab_size)  # train_split value == train
